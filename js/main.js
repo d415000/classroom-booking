@@ -15,20 +15,26 @@ function Retrieve() {
         },
         success: function (Jdata) {
             var Info = Jdata.data;
-            for (i = 0; Info.length > i; i++) {
-                FillTime = Info[i].FillTime;
-				Email=Info[i].Email;
-                Department = Info[i].Department;
-                Applicant = Info[i].Applicant;
-                RoomName = Info[i].RoomName;
-                BorrowDate = Info[i].BorrowDate;
-                StartTime = Info[i].StartTime;
-                EndTime = Info[i].EndTime;
-                Reason = Info[i].Reason;
-                // 印出資料
-                print();
-            };
-
+			// 👇 加上這一行，把 GAS 傳來的第一筆資料印出來看看 👇
+            console.log("API回傳的資料結構：", Info[0]);
+			var Length=Number(Info.length)
+			if(Length > 0) {
+				for (i = 0; Info.length > i; i++) {
+					FillTime = Info[i].FillTime;
+					Email=Info[i].Email;
+					Department = Info[i].Department;
+					Applicant = Info[i].Applicant;
+					RoomName = Info[i].RoomName;
+					BorrowDate = Info[i].BorrowDate;
+					StartTime = Info[i].StartTime;
+					EndTime = Info[i].EndTime;
+					Reason = Info[i].Reason;
+					// 印出資料
+					print();
+				};
+			}else{
+						$("#table-data").append('暫無資料');
+		}
 	    //  資料列印
             function print() {
                 $("#table-data").append(
@@ -57,22 +63,39 @@ function Retrieve() {
                 });
             };
 
-	    function search_table(value) {
-                $('tbody tr').each(function () {
-                    var found = 'false';
-                    $(this).each(function () {
-                        if ($(this).text().toLowerCase().indexOf(value.toLowerCase()) >= 0) {
-                            found = 'true';
-                        }
-                    });
-                    if (found == 'true') {
-                        $(this).show();
-                    }
-                    else {
-                        $(this).hide();
-                    }
-                });
-            }
+		function search_table(value) {
+			// 1. 先移除舊的「暫無資料」提示列（避免重複顯示）
+			$("#no-data-row").remove();
+		
+			var visibleCount = 0; // 用來計算目前顯示的列數
+		
+			$('tbody tr').each(function () {
+				var found = 'false';
+				$(this).each(function () {
+					if ($(this).text().toLowerCase().indexOf(value.toLowerCase()) >= 0) {
+						found = 'true';
+					}
+				});
+		
+				if (found == 'true') {
+					$(this).show();
+					visibleCount++; // 如果這列符合搜尋條件，計數加 1
+				} else {
+					$(this).hide();
+				}
+			});
+		
+			// 2. 如果計數為 0，表示沒有符合搜尋條件的資料
+			if (visibleCount === 0) {
+				// 在 tbody 中新增一行提示文字，colspan 設為 8 是因為你的表格原本有 8 欄
+				$('tbody').append(
+					'<tr id="no-data-row">' +
+					'<td colspan="8" style="text-align:center; padding: 20px; color: gray;">暫無資料</td>' +
+					'</tr>'
+				);
+			}
+		}
+	    
 		}
     });
 };
